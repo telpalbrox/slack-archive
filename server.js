@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const basicAuth = require('express-basic-auth');
 const Datastore = require('nedb');
 const Promise = require('bluebird');
 
@@ -11,6 +12,13 @@ const db = new Datastore({
 });
 db.ensureIndex({ fieldName: 'text' });
 const app = express();
+
+if (process.env.HTTP_USER && process.env.HTTP_PASSWORD) {
+    app.use(basicAuth({
+        users: { [process.env.HTTP_USER]: process.env.HTTP_PASSWORD },
+        challenge: true
+    }));
+}
 
 app.use(bodyParser.json());
 
