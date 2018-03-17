@@ -1,13 +1,13 @@
 const Datastore = require('nedb');
-const paths = require('./paths');
+const config = require('./config');
 
 const messagesDb = new Datastore({
-    filename: paths.DB_FILE,
+    filename: config.DB_FILE_PATH,
     autoload: true
 });
 messagesDb.ensureIndex({ fieldName: 'text' });
 const channelsDb = new Datastore({
-    filename: paths.CHANNELS_DB_FILE,
+    filename: config.CHANNELS_DB_FILE_PATH,
     autoload: true
 });
 

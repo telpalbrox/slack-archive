@@ -1,34 +1,74 @@
-const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const basicAuth = require('express-basic-auth');
 const Datastore = require('nedb');
 const Promise = require('bluebird');
-
+const next = require('next');
 const databases = require('./database');
+const config = require('./config');
+
+const dev = process.env.NODE_ENV !== 'production';
 const db = databases.messagesDb;
 const channelsDb = databases.channelsDb;
-const app = express();
+const nextApp = next({ dev });
+const handle = nextApp.getRequestHandler();
 
-app.use(morgan('combined'));
-if (process.env.HTTP_USER && process.env.HTTP_PASSWORD) {
-    app.use(basicAuth({
-        users: { [process.env.HTTP_USER]: process.env.HTTP_PASSWORD },
-        challenge: true
-    }));
-}
+nextApp.prepare().then(() => {
+    const app = express();
 
-app.use(bodyParser.json());
+    app.use(morgan('combined'));
+    if (process.env.HTTP_USER && process.env.HTTP_PASSWORD) {
+        app.use(basicAuth({
+            users: { [process.env.HTTP_USER]: process.env.HTTP_PASSWORD },
+            challenge: true
+        }));
+    }
 
-app.get('/channel/:channel', (req, res) => {
-    db.find({channel: req.params.channel}).sort({ts: 1}).exec((err, messages) => {
+    app.use(bodyParser.json());
+
+    app.get('/channel/:channel', (req, res) => {
+        db.find({channel: req.params.channel}).sort({ts: 1}).exec((err, messages) => {
+            if (err) {
+                console.error(err);
+                res.sendStatus(500);
+                return;
+            }
+            res.json(messages);
+        });
+    });
+
+    app.get('/search', (req, res) => {
+        db.find({ text: {$regex: searchRegex(req.query.query)} }).sort({ts: 1}).exec((err, messages) => {
+            if (err) {
+                console.error(err);
+                res.sendStatus(500);
+                return;
+            }
+            res.json(messages);
+        });
+    });
+
+    app.get('/channels', (req, res) => {
+        channelsDb.find({}, (err, channels) => {
+            if (err) {
+                console.error(err);
+                res.sendStatus(500);
+                return;
+            }
+            res.json(channels);
+        });
+    });
+
+    app.get('*', (req, res) => {
+        return handle(req, res)
+    })
+
+    app.listen(config.PORT, (err) => {
         if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
+            throw err;
         }
-        res.json(messages);
+        console.log(`Listening on ${config.PORT}`)
     });
 });
 
@@ -49,32 +89,3 @@ function searchRegex(term) {
     // => /.*(?=.*TERM1.*)(?=.*TERM2.*).*/
     return new RegExp(matchTerm, 'gi');
 }
-
-app.get('/search', (req, res) => {
-    db.find({ text: {$regex: searchRegex(req.query.query)} }).sort({ts: 1}).exec((err, messages) => {
-        if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
-        }
-        res.json(messages);
-    });
-});
-
-app.get('/channels', (req, res) => {
-    channelsDb.find({}, (err, channels) => {
-        if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
-        }
-        res.json(channels);
-    });
-});
-
-app.listen(process.env.PORT || 3000, (err) => {
-    if (err) {
-        throw err;
-    }
-    console.log(`Listening on ${process.env.PORT || 3000}`)
-});

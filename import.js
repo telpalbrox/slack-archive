@@ -2,13 +2,13 @@
 const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
-const paths = require('./paths');
+const config = require('./config');
 const databases = require('./database');
 const db = databases.messagesDb;
 const channelsDb = databases.channelsDb;
 
-const channelsJSON = require(paths.CHANNELS_JSON);
-const usersJSON = require(paths.USERS_JSON);
+const channelsJSON = require(config.CHANNELS_JSON_PATH);
+const usersJSON = require(config.USERS_JSON_PATH);
 const users = {};
 
 Promise.promisifyAll(fs);
@@ -41,17 +41,17 @@ const importArchive = async () => {
     console.time('Import time');
     loadUsers();
     try {
-        await fs.unlinkAsync(paths.DB_FILE);
-        await fs.unlinkAsync(paths.CHANNELS_DB_FILE);
+        await fs.unlinkAsync(config.DB_FILE_PATH);
+        await fs.unlinkAsync(config.CHANNELS_DB_FILE_PATH);
     } catch(err) {
         if (err.code !== 'ENOENT') {
             throw err;
         }
     }
     channelsDb.insert(channelsJSON);
-    const files = await fs.readdirAsync(paths.DATA_PATH);
+    const files = await fs.readdirAsync(config.DATA_PATH);
     for (let fileName of files) {
-        const filePath = path.join(paths.DATA_PATH, fileName);
+        const filePath = path.join(config.DATA_PATH, fileName);
         const stats = await fs.statAsync(filePath);
         if (stats.isDirectory()) {
             console.log('Reading channel:', fileName);
