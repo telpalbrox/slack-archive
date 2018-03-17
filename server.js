@@ -19,16 +19,23 @@ nextApp.prepare().then(() => {
 
     app.use(morgan('combined'));
     if (process.env.HTTP_USER && process.env.HTTP_PASSWORD) {
-        app.use(basicAuth({
-            users: { [process.env.HTTP_USER]: process.env.HTTP_PASSWORD },
-            challenge: true
-        }));
+        app.use((req, res, next) => {
+            if (req.connection.remoteAddress === '127.0.0.1' ||
+                req.connection.remoteAddress === '::ffff:127.0.0.1' ||
+                req.connection.remoteAddress === '::1') {
+                return next();
+            }
+            basicAuth({
+                users: { [process.env.HTTP_USER]: process.env.HTTP_PASSWORD },
+                challenge: true
+            })(req, res, next);    
+        });
     }
 
     app.use(bodyParser.json());
 
     app.get('/api/channel/:channel', (req, res) => {
-        db.find({channel: req.params.channel}).sort({ts: 1}).exec((err, messages) => {
+        db.find({ channel: req.params.channel }).sort({ ts: 1 }).exec((err, messages) => {
             if (err) {
                 console.error(err);
                 res.sendStatus(500);
@@ -39,7 +46,7 @@ nextApp.prepare().then(() => {
     });
 
     app.get('/api/search', (req, res) => {
-        db.find({ text: {$regex: searchRegex(req.query.query)} }).sort({ts: 1}).exec((err, messages) => {
+        db.find({ text: { $regex: searchRegex(req.query.query) } }).sort({ ts: 1 }).exec((err, messages) => {
             if (err) {
                 console.error(err);
                 res.sendStatus(500);
@@ -83,7 +90,7 @@ function searchRegex(term) {
     // Split all the search terms
     const terms = term.split(" ");
 
-    for(let i = 0; i < terms.length; i++) {
+    for (let i = 0; i < terms.length; i++) {
         matchTerm += '(?=.*' + terms[i] + '.*)';
     };
 
