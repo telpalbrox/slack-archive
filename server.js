@@ -20,9 +20,8 @@ nextApp.prepare().then(() => {
     app.use(morgan('combined'));
     if (process.env.HTTP_USER && process.env.HTTP_PASSWORD) {
         app.use((req, res, next) => {
-            if (req.connection.remoteAddress === '127.0.0.1' ||
-                req.connection.remoteAddress === '::ffff:127.0.0.1' ||
-                req.connection.remoteAddress === '::1') {
+            const ip = req.headers['x-real-ip'] || req.connection.remoteAddress;
+            if (ip === '127.0.0.1' || ip === '::ffff:127.0.0.1' || ip === '::1') {
                 return next();
             }
             basicAuth({
