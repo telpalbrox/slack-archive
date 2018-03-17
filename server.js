@@ -27,7 +27,7 @@ nextApp.prepare().then(() => {
 
     app.use(bodyParser.json());
 
-    app.get('/channel/:channel', (req, res) => {
+    app.get('/api/channel/:channel', (req, res) => {
         db.find({channel: req.params.channel}).sort({ts: 1}).exec((err, messages) => {
             if (err) {
                 console.error(err);
@@ -38,7 +38,7 @@ nextApp.prepare().then(() => {
         });
     });
 
-    app.get('/search', (req, res) => {
+    app.get('/api/search', (req, res) => {
         db.find({ text: {$regex: searchRegex(req.query.query)} }).sort({ts: 1}).exec((err, messages) => {
             if (err) {
                 console.error(err);
@@ -49,7 +49,7 @@ nextApp.prepare().then(() => {
         });
     });
 
-    app.get('/channels', (req, res) => {
+    app.get('/api/channels', (req, res) => {
         channelsDb.find({}, (err, channels) => {
             if (err) {
                 console.error(err);
@@ -58,6 +58,10 @@ nextApp.prepare().then(() => {
             }
             res.json(channels);
         });
+    });
+
+    app.get('/channel/:channel', (req, res) => {
+        nextApp.render(req, res, '/channel', { channel: req.params.channel });
     });
 
     app.get('*', (req, res) => {

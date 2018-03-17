@@ -1,0 +1,16 @@
+.sa-page {
+    @media (min-width: 768px) {
+        padding: 0;
+        display: grid;
+        grid-template-columns: 260px auto;
+        grid-column-gap: 16px;
+    }
+}
+
+.sa-content {
+    padding: 8px;
+
+    @media (min-width: 768px) {
+        padding: 0;
+    }
+}

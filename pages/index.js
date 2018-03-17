@@ -1,10 +1,13 @@
 import React from 'react';
+import Head from 'next/head';
 import axios from 'axios';
 import utils from '../utils';
+import { Layout } from '../components/Layout';
+import '../styles/styles.scss';
 
 export default class extends React.Component {
     static async getInitialProps() {
-        const response = await axios.get(`${utils.getServerUrl()}/channels`);
+        const response = await axios.get(`${utils.getServerUrl()}/api/channels`);
         return {
             channels: response.data
         };
@@ -12,10 +15,9 @@ export default class extends React.Component {
 
     render() {
         return (
-            <div>
-                <h1>Hello world!</h1>
-                {this.props.channels.map((channel) => <div key={channel.id}>{channel.name}</div>)}
-            </div>
+            <Layout channels={this.props.channels}>
+                <h1>Select a channel</h1>
+            </Layout>
         );
     }
 }

@@ -1,0 +1,22 @@
+.sa-sidebar {
+    color: #fff;
+    background: rgb(77, 57, 75);
+    padding: 16px 0;
+
+    &-container {
+        padding: 0 16px;
+    }
+
+    &-heading {
+        margin-bottom: 8px;
+    }
+
+    &-channel {
+        padding: 2px 0;
+        font-weight: 100;
+
+        &-selected {
+            background: #4C9689;
+        }
+    }
+}
