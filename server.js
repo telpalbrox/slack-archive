@@ -1,18 +1,17 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 const basicAuth = require('express-basic-auth');
 const Datastore = require('nedb');
 const Promise = require('bluebird');
 
-const DB_FILE = path.join(__dirname, 'archive.db');
-const db = new Datastore({
-    filename: DB_FILE,
-    autoload: true
-});
-db.ensureIndex({ fieldName: 'text' });
+const databases = require('./database');
+const db = databases.messagesDb;
+const channelsDb = databases.channelsDb;
 const app = express();
 
+app.use(morgan('combined'));
 if (process.env.HTTP_USER && process.env.HTTP_PASSWORD) {
     app.use(basicAuth({
         users: { [process.env.HTTP_USER]: process.env.HTTP_PASSWORD },
@@ -59,6 +58,17 @@ app.get('/search', (req, res) => {
             return;
         }
         res.json(messages);
+    });
+});
+
+app.get('/channels', (req, res) => {
+    channelsDb.find({}, (err, channels) => {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+        }
+        res.json(channels);
     });
 });
 

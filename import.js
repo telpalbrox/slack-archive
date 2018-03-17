@@ -2,21 +2,19 @@
 const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
-const Datastore = require('nedb');
+const paths = require('./paths');
+const databases = require('./database');
+const db = databases.messagesDb;
+const channelsDb = databases.channelsDb;
 
-const DATA_PATH = path.join(__dirname, 'data');
-const userJSON = require(path.join(DATA_PATH, 'users.json'));
-const DB_FILE = path.join(__dirname, 'archive.db');
-const db = new Datastore({
-    filename: DB_FILE,
-    autoload: true
-});
+const channelsJSON = require(paths.CHANNELS_JSON);
+const usersJSON = require(paths.USERS_JSON);
 const users = {};
 
 Promise.promisifyAll(fs);
 
 const loadUsers = () => {
-    userJSON.forEach((user) => {
+    usersJSON.forEach((user) => {
         users[user.id] = user;
     });
 };
@@ -42,9 +40,18 @@ const readChannelDirectory = async (channel, directoryPath) => {
 const importArchive = async () => {
     console.time('Import time');
     loadUsers();
-    const files = await fs.readdirAsync(DATA_PATH);
+    try {
+        await fs.unlinkAsync(paths.DB_FILE);
+        await fs.unlinkAsync(paths.CHANNELS_DB_FILE);
+    } catch(err) {
+        if (err.code !== 'ENOENT') {
+            throw err;
+        }
+    }
+    channelsDb.insert(channelsJSON);
+    const files = await fs.readdirAsync(paths.DATA_PATH);
     for (let fileName of files) {
-        const filePath = path.join(DATA_PATH, fileName);
+        const filePath = path.join(paths.DATA_PATH, fileName);
         const stats = await fs.statAsync(filePath);
         if (stats.isDirectory()) {
             console.log('Reading channel:', fileName);
