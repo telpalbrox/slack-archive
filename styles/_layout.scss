@@ -8,7 +8,13 @@
 }
 
 .sa-content {
+    word-wrap: break-word;
     padding: 8px;
+
+    a {
+        color: black;
+        text-decoration: underline;
+    }
 
     @media (min-width: 768px) {
         padding: 0;

@@ -2,11 +2,12 @@
 @import 'layout.scss';
 @import 'headers.scss';
 @import 'sidebar.scss';
+@import 'search.scss';
 
 body {
     font-family: 'Lato', sans-serif;
 }
 
-.lol {
-    color: red;
+.sa-message:target {
+    background: transparentize($color: yellow, $amount: 0.8);
 }

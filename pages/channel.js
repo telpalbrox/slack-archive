@@ -21,10 +21,10 @@ export default class extends React.Component {
 
     render() {
         return (
-            <Layout selectedChannel={this.props.channel} channels={this.props.channels}>
+            <Layout title={`#${this.props.channel}`} selectedChannel={this.props.channel} channels={this.props.channels}>
                 <h1>{this.props.channel}</h1>
                 <ul>
-                    {this.props.messages.map((message) => <li key={message.ts}>{message.user}: {message.text}</li>)}
+                    {this.props.messages.map((message) => <li className="sa-message" id={message.ts} key={message.ts}>{message.user}: {message.text}</li>)}
                 </ul>
             </Layout>
         );
