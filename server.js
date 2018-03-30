@@ -53,7 +53,15 @@ nextApp.prepare().then(() => {
     });
 
     app.get('/api/search', (req, res) => {
-        db.find({ text: { $regex: searchRegex(req.query.query) } }).sort({ ts: 1 }).exec((err, messages) => {
+        const findOptions = {
+            text: { $regex: searchRegex(req.query.query) }
+        };
+        if (req.query.ts !== undefined) {
+            findOptions.ts = {
+                $gt: req.query.ts
+            };
+        }
+        db.find(findOptions).sort({ ts: 1 }).limit(100).exec((err, messages) => {
             if (err) {
                 console.error(err);
                 res.sendStatus(500);
