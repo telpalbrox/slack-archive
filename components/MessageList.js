@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import { MessageLink } from './MessageLink';
 
 export class MessageList extends React.Component {
@@ -9,7 +10,7 @@ export class MessageList extends React.Component {
             const height = d.offsetHeight;
     
             if (offset >= height - 100) {
-                this.props.loadMoreMessages && this.props.loadMoreMessages();
+                this.props.loadMoreMessagesBottom && this.props.loadMoreMessagesBottom();
             }
         });
     }
@@ -19,7 +20,6 @@ export class MessageList extends React.Component {
     }
 
     componentWillUnmount() {
-        console.log('unmount');
         window.removeEventListener('scroll', this.scrollHandler);
     }
 
@@ -29,12 +29,12 @@ export class MessageList extends React.Component {
                 {this.props.messages.map((message) =>
                     <div
                         key={message.ts}
-                        className="sa-message"
+                        className={classnames('sa-message', { 'sa-message-selected': message.ts === this.props.selectedMessage })}
                         id={message.ts}
                     >
                         {this.props.showChannelLink ? <MessageLink message={message}/> : null} {message.user}: {message.text}
                     </div>
-                )};
+                )}
             </div>
         );
     }

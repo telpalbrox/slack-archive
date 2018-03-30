@@ -8,6 +8,6 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
-.sa-message:target {
+.sa-message-selected {
     background: transparentize($color: yellow, $amount: 0.8);
 }
