@@ -1,37 +1,30 @@
 import React from 'react';
-import Head from 'next/head';
-import Link from 'next/link';
-import axios from 'axios';
-import utils from '../utils';
-import { Layout } from '../components/Layout';
-import '../styles/styles.scss';
+import { withLayout } from '../components/withLayout';
+import { MessageLink } from '../components/MessageLink';
+import { withMessages } from '../components/withMessages';
 
-export default class extends React.Component {
+class SearchPage extends React.Component {
+    static getMessagesPath({ query }) {
+        return `/api/search?query=${query.query}`;
+    }
+
     static async getInitialProps({ query }) {
-        const searchQuery = query.query;
-        const [channelsResponse, searchResponse] = await Promise.all([
-            axios.get(`${utils.getServerUrl()}/api/channels`),
-            axios.get(`${utils.getServerUrl()}/api/search?query=${searchQuery}`)
-        ]);
         return {
-            channels: channelsResponse.data,
-            messages: searchResponse.data,
-            query: searchQuery
+            query: query.query
         };
+    }
+
+    static showChannelLink = true;
+
+    static getPageTitle(props) {
+        return `Search "${props.query}"`;
     }
 
     render() {
         return (
-            <Layout title={`Search "${this.props.query}"`} query={this.props.query} channels={this.props.channels}>
-                <h1>Search "{this.props.query}"</h1>
-                <ul>
-                    {this.props.messages.map((message) =>
-                        <li className="sa-message" key={message.ts}>
-                            <Link href={`/channel?channel=${message.channel}#${message.ts}`} as={`/channel/${message.channel}#${message.ts}`}><a>#{message.channel}</a></Link> {message.user}: {message.text}
-                        </li>
-                    )}
-                </ul>
-            </Layout>
+            <h1>Search "{this.props.query}"</h1>
         );
     }
 }
+
+export default withLayout(withMessages(SearchPage));

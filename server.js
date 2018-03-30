@@ -33,19 +33,39 @@ nextApp.prepare().then(() => {
 
     app.use(bodyParser.json());
 
+    const nedbOperator = [['$gt', '$gte'], ['$lt', '$lte']];
+
     app.get('/api/channel/:channel', (req, res) => {
-        db.find({ channel: req.params.channel }).sort({ ts: 1 }).exec((err, messages) => {
+        const findOptions = {
+            channel: req.params.channel
+        };
+        if (req.query.ts !== undefined) {
+            const reverse = req.query.reverse === 'true' ? 1 : 0;
+            const includeMessage = req.query.includeMessage === 'true' ? 1 : 0;
+            findOptions.ts = {
+                [nedbOperator[reverse][includeMessage]]: req.query.ts
+            };
+        }
+        db.find(findOptions).sort({ ts: req.query.reverse === 'true' ? -1 : 1 }).limit(100).exec((err, messages) => {
             if (err) {
                 console.error(err);
                 res.sendStatus(500);
                 return;
             }
-            res.json(messages);
+            res.json(req.query.reverse === 'true' ? messages.reverse() : messages);
         });
     });
 
     app.get('/api/search', (req, res) => {
-        db.find({ text: { $regex: searchRegex(req.query.query) } }).sort({ ts: 1 }).exec((err, messages) => {
+        const findOptions = {
+            text: { $regex: searchRegex(req.query.query) }
+        };
+        if (req.query.ts !== undefined) {
+            findOptions.ts = {
+                $gt: req.query.ts
+            };
+        }
+        db.find(findOptions).sort({ ts: 1 }).limit(100).exec((err, messages) => {
             if (err) {
                 console.error(err);
                 res.sendStatus(500);
@@ -67,7 +87,7 @@ nextApp.prepare().then(() => {
     });
 
     app.get('/channel/:channel', (req, res) => {
-        nextApp.render(req, res, '/channel', { channel: req.params.channel });
+        nextApp.render(req, res, '/channel', { channel: req.params.channel, ts: req.query.ts });
     });
 
     app.get('*', (req, res) => {
