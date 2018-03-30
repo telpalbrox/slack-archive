@@ -1,35 +1,34 @@
-import { List, WindowScroller } from 'react-virtualized';
+import React from 'react';
 
-export const MessageList = (props) => {
-    const rowRenderer = ({
-        key,
-        index,
-        style
-    }) => {
-        const message = props.messages[index];
+export class MessageList extends React.Component {
+    scrollHandler = async () => {
+        const d = document.documentElement;
+        const offset = d.scrollTop + window.innerHeight;
+        const height = d.offsetHeight;
+
+        if (offset >= height - 100) {
+            this.props.loadMoreMessages && this.props.loadMoreMessages();
+        }
+    }
+
+    componentDidMount() {
+        window.addEventListener('scroll', () => window.requestAnimationFrame(this.scrollHandler));
+    }
+
+    render() {
         return (
-            <div key={key}
-                style={style}
-                className="sa-message"
-                id={message.ts}
-            >
-                {message.user}: {message.text}
+            <div>
+                {this.props.messages.map((message) =>
+                    <div
+                        key={message.ts}
+                        className="sa-message"
+                        id={message.ts}
+                    >
+                        {message.user}: {message.text}
+                    </div>
+                )};
             </div>
         );
-    };
-    return <WindowScroller>
-        {({ height, isScrolling, onChildScroll, scrollTop }) => (
-            <List
-                autoHeight={true}
-                height={height}
-                isScrolling={isScrolling}
-                onScroll={onChildScroll}
-                rowCount={props.messages.length}
-                rowHeight={40}
-                rowRenderer={rowRenderer}
-                scrollTop={scrollTop}
-                width={500}
-            />
-        )}
-    </WindowScroller>;
-};
+    }
+}
+

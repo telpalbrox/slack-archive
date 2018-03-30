@@ -20,11 +20,35 @@ export default class extends React.Component {
         };
     }
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            messages: props.messages,
+            loading: false
+        };
+    }
+
+    onLoadMoreMessages = async () => {
+        this.setState({
+            loading: true
+        });
+        const response = await axios.get(`${utils.getServerUrl()}/api/channel/${this.props.channel}`, {
+            params: {
+                ts: this.state.messages[this.state.messages.length - 1].ts
+            }
+        });
+        this.setState({
+            messages: this.state.messages.concat(response.data),
+            loading: false
+        });
+    }
+
     render() {
         return (
             <Layout title={`#${this.props.channel}`} selectedChannel={this.props.channel} channels={this.props.channels}>
                 <h1>{this.props.channel}</h1>
-                <MessageList messages={this.props.messages} />
+                <MessageList loadMoreMessages={this.onLoadMoreMessages} messages={this.state.messages} />
+                { this.state.loading ? <span>Loading...</span> : null }
             </Layout>
         );
     }

@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node server.js",
     "build": "next build",
-    "start": "NODE_ENV=production node server.js",
+    "start": "npm run build && NODE_ENV=production node server.js",
     "import": "node import.js"
   },
   "keywords": [],
@@ -27,7 +27,6 @@
     "node-sass": "^4.7.2",
     "nprogress": "^0.2.0",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "react-virtualized": "^9.18.5"
+    "react-dom": "^16.2.0"
   }
 }
