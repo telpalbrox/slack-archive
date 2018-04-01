@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
@@ -32,6 +33,11 @@ nextApp.prepare().then(() => {
     }
 
     app.use(bodyParser.json());
+
+    app.get('/service-worker.js', (req, res) => {
+        const filePath = path.join(__dirname, '.next', '/service-worker.js');
+        nextApp.serveStatic(req, res, filePath);
+    });
 
     const nedbOperator = [['$gt', '$gte'], ['$lt', '$lte']];
 

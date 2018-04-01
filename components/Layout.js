@@ -4,6 +4,7 @@ import Router from 'next/router';
 import NProgress from 'nprogress';
 import { Sidebar } from './Sidebar';
 import { Search } from './Search';
+import { LinkCSS } from './LinkCSS';
 
 Router.onRouteChangeStart = () => NProgress.start();
 Router.onRouteChangeComplete = () => NProgress.done();
@@ -14,7 +15,6 @@ export const Layout = ({ children, title, channels, selectedChannel, query }) =>
         <Head>
             <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             <title>{title ? `${title} | Slack Archives` : 'Slack Archives'}</title>
-            <link rel='stylesheet' type='text/css' href='/static/nprogress.css' />
         </Head>
         <Sidebar query={query} selectedChannel={selectedChannel} channels={channels}/>
         <div className="sa-content">
