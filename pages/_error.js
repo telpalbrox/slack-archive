@@ -21,7 +21,9 @@ export default class Error extends React.Component {
                             ? `An error ${this.props.statusCode} occurred on server`
                             : 'An error occurred on client, are you connected to the Internet?'}
                     </div>
-                    <Link href={`/`}><a>Go home or </a></Link>
+                    <Link href={`/`}>
+                        <a>Go home or </a>
+                    </Link>
                     <button onClick={() => window.location.reload()}>Try again</button>
                 </div>
             </div>

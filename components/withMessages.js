@@ -4,7 +4,7 @@ import axios from 'axios';
 import utils from '../utils';
 import { MessageList } from './MessageList';
 
-export const withMessages = (WrappedComponent) => {
+export const withMessages = WrappedComponent => {
     class WithMesssages extends React.Component {
         static getDerivedStateFromProps(props, prevState) {
             if (prevState && props.messages !== prevState.messages) {
@@ -31,11 +31,15 @@ export const withMessages = (WrappedComponent) => {
                 }),
                 WrappedComponent.getInitialProps && WrappedComponent.getInitialProps(context)
             ]);
-            return Object.assign({}, {
-                messages: messagesResponse.data,
-                messagesPath,
-                ts: context.query.ts
-            }, wrappedComponentProps);
+            return Object.assign(
+                {},
+                {
+                    messages: messagesResponse.data,
+                    messagesPath,
+                    ts: context.query.ts
+                },
+                wrappedComponentProps
+            );
         }
 
         constructor(props) {
@@ -50,7 +54,7 @@ export const withMessages = (WrappedComponent) => {
             };
         }
 
-        onLoadMoreMessages = async (position) => {
+        onLoadMoreMessages = async position => {
             if (this.state[`finished${position}`] || this.state[`loading${position}`]) {
                 return;
             }
@@ -59,26 +63,35 @@ export const withMessages = (WrappedComponent) => {
             });
             const response = await axios.get(`${utils.getServerUrl()}${this.props.messagesPath}`, {
                 params: {
-                    ts: position === 'Top' ? this.state.messages[0].ts : this.state.messages[this.state.messages.length - 1].ts,
+                    ts:
+                        position === 'Top'
+                            ? this.state.messages[0].ts
+                            : this.state.messages[this.state.messages.length - 1].ts,
                     reverse: position === 'Top'
                 }
             });
             this.setState({
-                messages: position === 'Top' ? [...response.data, ...this.state.messages] : [...this.state.messages, ...response.data],
+                messages:
+                    position === 'Top'
+                        ? [...response.data, ...this.state.messages]
+                        : [...this.state.messages, ...response.data],
                 [`loading${position}`]: false,
-                [`finished${position}`]: response.data.length < 100,
+                [`finished${position}`]: response.data.length < 100
             });
-        }
+        };
 
         render() {
             return (
                 <React.Fragment>
                     <WrappedComponent {...this.props} />
-                    {this.props.ts && !this.state.loadingTop && !this.state.finishedTop ? <button onClick={() => this.onLoadMoreMessages('Top')}>Load more messages</button> : null}
+                    {this.props.ts && !this.state.loadingTop && !this.state.finishedTop ? (
+                        <button onClick={() => this.onLoadMoreMessages('Top')}>Load more messages</button>
+                    ) : null}
                     {this.state.loadingTop ? <span>loading...</span> : null}
                     <MessageList
                         showChannelLink={WrappedComponent.showChannelLink}
-                        loadMoreMessagesBottom={() => this.onLoadMoreMessages('Bottom')} messages={this.state.messages}
+                        loadMoreMessagesBottom={() => this.onLoadMoreMessages('Bottom')}
+                        messages={this.state.messages}
                         selectedMessage={this.props.ts}
                     />
                     {this.state.loadingBottom ? <span>loading...</span> : null}

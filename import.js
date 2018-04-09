@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 const fs = require('fs');
 const path = require('path');
 const Promise = require('bluebird');
@@ -14,13 +14,13 @@ const users = {};
 Promise.promisifyAll(fs);
 
 const loadUsers = () => {
-    usersJSON.forEach((user) => {
+    usersJSON.forEach(user => {
         users[user.id] = user;
     });
 };
 
 const insertDayMessages = (channel, messages) => {
-    const messageWithUser = messages.map((message) => {
+    const messageWithUser = messages.map(message => {
         message.channel = channel;
         message.user = users[message.user] ? users[message.user].real_name : message.user;
         return message;
@@ -43,7 +43,7 @@ const importArchive = async () => {
     try {
         await fs.unlinkAsync(config.DB_FILE_PATH);
         await fs.unlinkAsync(config.CHANNELS_DB_FILE_PATH);
-    } catch(err) {
+    } catch (err) {
         if (err.code !== 'ENOENT') {
             throw err;
         }

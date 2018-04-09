@@ -16,7 +16,7 @@ export const Layout = ({ children, title, channels, selectedChannel, query }) =>
             <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             <title>{title ? `${title} | Slack Archives` : 'Slack Archives'}</title>
         </Head>
-        <Sidebar query={query} selectedChannel={selectedChannel} channels={channels}/>
+        <Sidebar query={query} selectedChannel={selectedChannel} channels={channels} />
         <div className="sa-content">
             <Search query={query} />
             {children}

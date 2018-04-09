@@ -4,17 +4,21 @@ import axios from 'axios';
 import utils from '../utils';
 import { Layout } from './Layout';
 
-export const withLayout = (WrappedComponent) => {
+export const withLayout = WrappedComponent => {
     class WithLayout extends React.Component {
         static async getInitialProps(context) {
             const [channelsResponse, wrappedComponentProps] = await Promise.all([
                 axios.get(`${utils.getServerUrl()}/api/channels`),
                 WrappedComponent.getInitialProps && WrappedComponent.getInitialProps(context)
             ]);
-            return Object.assign({}, {
-                channels: channelsResponse.data,
-                channel: context.query.channel
-            }, wrappedComponentProps);
+            return Object.assign(
+                {},
+                {
+                    channels: channelsResponse.data,
+                    channel: context.query.channel
+                },
+                wrappedComponentProps
+            );
         }
 
         render() {

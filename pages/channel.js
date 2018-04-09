@@ -12,9 +12,7 @@ class ChannelPage extends React.Component {
     }
 
     render() {
-        return (
-            <h1>{this.props.channel}</h1>
-        );
+        return <h1>{this.props.channel}</h1>;
     }
 }
 
