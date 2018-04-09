@@ -1,38 +1,46 @@
 {
-  "name": "slack-archive",
-  "version": "1.0.0",
-  "description": "Simple web interface for slack archives",
-  "main": "index.js",
-  "repository": "gitlab:AlbertoLuna/slack-archive",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node server.js",
-    "build": "next build",
-    "start": "cross-env NODE_ENV=production npm run build && cross-env NODE_ENV=production node server.js",
-    "import": "node import.js"
-  },
-  "keywords": [],
-  "author": "Alberto Luna",
-  "license": "ISC",
-  "dependencies": {
-    "@zeit/next-sass": "^0.1.2",
-    "axios": "^0.18.0",
-    "bluebird": "^3.5.1",
-    "body-parser": "^1.18.2",
-    "classnames": "^2.2.5",
-    "express": "^4.16.3",
-    "express-basic-auth": "^1.1.4",
-    "hoist-non-react-statics": "^2.5.0",
-    "morgan": "^1.9.0",
-    "nedb": "^1.8.0",
-    "next": "^5.1.0",
-    "next-offline": "^2.3.1",
-    "node-sass": "^4.7.2",
-    "nprogress": "^0.2.0",
-    "react": "^16.3.0",
-    "react-dom": "^16.3.0"
-  },
-  "devDependencies": {
-    "cross-env": "^5.1.4"
-  }
+    "name": "slack-archive",
+    "version": "1.0.0",
+    "description": "Simple web interface for slack archives",
+    "main": "index.js",
+    "repository": "gitlab:AlbertoLuna/slack-archive",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "node server.js",
+        "build": "next build",
+        "start": "cross-env NODE_ENV=production npm run build && cross-env NODE_ENV=production node server.js",
+        "import": "node import.js",
+        "precommit": "lint-staged",
+        "prettier": "prettier --list-different *.js components/*.js pages/*.js"
+    },
+    "keywords": [],
+    "author": "Alberto Luna",
+    "license": "ISC",
+    "dependencies": {
+        "@zeit/next-sass": "^0.1.2",
+        "axios": "^0.18.0",
+        "bluebird": "^3.5.1",
+        "body-parser": "^1.18.2",
+        "classnames": "^2.2.5",
+        "express": "^4.16.3",
+        "express-basic-auth": "^1.1.4",
+        "hoist-non-react-statics": "^2.5.0",
+        "morgan": "^1.9.0",
+        "nedb": "^1.8.0",
+        "next": "^5.1.0",
+        "next-offline": "^2.3.1",
+        "node-sass": "^4.7.2",
+        "nprogress": "^0.2.0",
+        "react": "^16.3.0",
+        "react-dom": "^16.3.0"
+    },
+    "devDependencies": {
+        "cross-env": "^5.1.4",
+        "husky": "^0.14.3",
+        "lint-staged": "^7.0.4",
+        "prettier": "1.11.1"
+    },
+    "lint-staged": {
+        "*.{js,json,md}": ["prettier --write *.js components/*.js pages/*.js", "git add"]
+    }
 }

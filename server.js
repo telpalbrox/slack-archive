@@ -28,7 +28,7 @@ nextApp.prepare().then(() => {
             basicAuth({
                 users: { [process.env.HTTP_USER]: process.env.HTTP_PASSWORD },
                 challenge: true
-            })(req, res, next);    
+            })(req, res, next);
         });
     }
 
@@ -52,14 +52,18 @@ nextApp.prepare().then(() => {
                 [nedbOperator[reverse][includeMessage]]: req.query.ts
             };
         }
-        db.find(findOptions).sort({ ts: req.query.reverse === 'true' ? -1 : 1 }).limit(100).exec((err, messages) => {
-            if (err) {
-                console.error(err);
-                res.sendStatus(500);
-                return;
-            }
-            res.json(req.query.reverse === 'true' ? messages.reverse() : messages);
-        });
+        db
+            .find(findOptions)
+            .sort({ ts: req.query.reverse === 'true' ? -1 : 1 })
+            .limit(100)
+            .exec((err, messages) => {
+                if (err) {
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
+                }
+                res.json(req.query.reverse === 'true' ? messages.reverse() : messages);
+            });
     });
 
     app.get('/api/search', (req, res) => {
@@ -71,14 +75,18 @@ nextApp.prepare().then(() => {
                 $gt: req.query.ts
             };
         }
-        db.find(findOptions).sort({ ts: 1 }).limit(100).exec((err, messages) => {
-            if (err) {
-                console.error(err);
-                res.sendStatus(500);
-                return;
-            }
-            res.json(messages);
-        });
+        db
+            .find(findOptions)
+            .sort({ ts: 1 })
+            .limit(100)
+            .exec((err, messages) => {
+                if (err) {
+                    console.error(err);
+                    res.sendStatus(500);
+                    return;
+                }
+                res.json(messages);
+            });
     });
 
     app.get('/api/channels', (req, res) => {
@@ -97,27 +105,27 @@ nextApp.prepare().then(() => {
     });
 
     app.get('*', (req, res) => {
-        return handle(req, res)
-    })
+        return handle(req, res);
+    });
 
-    app.listen(config.PORT, (err) => {
+    app.listen(config.PORT, err => {
         if (err) {
             throw err;
         }
-        console.log(`Listening on ${config.PORT}`)
+        console.log(`Listening on ${config.PORT}`);
     });
 });
 
 function searchRegex(term) {
-    // Build Regex String 
+    // Build Regex String
     let matchTerm = '.*';
 
     // Split all the search terms
-    const terms = term.split(" ");
+    const terms = term.split(' ');
 
     for (let i = 0; i < terms.length; i++) {
         matchTerm += '(?=.*' + terms[i] + '.*)';
-    };
+    }
 
     matchTerm += '.*';
 

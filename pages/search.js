@@ -21,9 +21,7 @@ class SearchPage extends React.Component {
     }
 
     render() {
-        return (
-            <h1>Search "{this.props.query}"</h1>
-        );
+        return <h1>Search "{this.props.query}"</h1>;
     }
 }
 

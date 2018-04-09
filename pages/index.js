@@ -4,9 +4,7 @@ import '../styles/styles.scss';
 
 class HomePage extends React.Component {
     render() {
-        return (
-            <h1>Select a channel</h1>
-        );
+        return <h1>Select a channel</h1>;
     }
 }
 
