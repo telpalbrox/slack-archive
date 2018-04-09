@@ -2,7 +2,9 @@ const PRECACHE_REVISION = 1;
 
 workbox.precaching.precacheAndRoute(self.__precacheManifest);
 workbox.precaching.precacheAndRoute([{
-    url: '/', revision: 1
+    url: '/error', revision: PRECACHE_REVISION
+}, {
+    url: '/', revision: PRECACHE_REVISION
 }, {
     url: '/static/manifest.json',
     revision: PRECACHE_REVISION
@@ -36,5 +38,5 @@ workbox.routing.registerRoute(
 );
 workbox.routing.registerRoute(
     ({ event }) => event.request.mode === 'navigate',
-    ({ url }) => fetch(url.href).catch(() => caches.match('/'))
+    ({ url }) => fetch(url.href).catch(() => caches.match('/error'))
 );
