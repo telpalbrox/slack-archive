@@ -49,7 +49,6 @@ nextApp.prepare().then(() => {
     });
 
     app.post('/api/upload', upload.single('archive'), async (req, res) => {
-        console.log(req.file);
         const extractDir = path.join(TMP_UPLOAD_DIR, `${req.file.filename}_extracted_dir`);
         try {
             await fs.mkdirAsync(extractDir);
