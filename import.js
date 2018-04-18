@@ -7,19 +7,18 @@ const databases = require('./database');
 const db = databases.messagesDb;
 const channelsDb = databases.channelsDb;
 
-const channelsJSON = require(config.CHANNELS_JSON_PATH);
-const usersJSON = require(config.USERS_JSON_PATH);
-const users = {};
-
 Promise.promisifyAll(fs);
 
-const loadUsers = () => {
+const loadUsers = usersJSONPath => {
+    const usersJSON = require(usersJSONPath);
+    const users = {};
     usersJSON.forEach(user => {
         users[user.id] = user;
     });
+    return users;
 };
 
-const insertDayMessages = (channel, messages) => {
+const insertDayMessages = (channel, messages, users) => {
     const messageWithUser = messages.map(message => {
         message.channel = channel;
         message.user = users[message.user] ? users[message.user].real_name : message.user;
@@ -28,18 +27,20 @@ const insertDayMessages = (channel, messages) => {
     db.insert(messageWithUser);
 };
 
-const readChannelDirectory = async (channel, directoryPath) => {
+const readChannelDirectory = async (channel, directoryPath, users) => {
     const files = await fs.readdirAsync(directoryPath);
     for (let fileName of files) {
         const filePath = path.join(directoryPath, fileName);
         const dayMessages = require(filePath);
-        insertDayMessages(channel, dayMessages);
+        insertDayMessages(channel, dayMessages, users);
     }
 };
 
-const importArchive = async () => {
+const importArchive = async (dataPath = path.join(__dirname, 'data')) => {
     console.time('Import time');
-    loadUsers();
+    const usersJSONPath = path.join(dataPath, 'users.json');
+    const channelsJSONPath = path.join(dataPath, 'channels.json');
+    const users = loadUsers(usersJSONPath);
     try {
         await fs.unlinkAsync(config.DB_FILE_PATH);
         await fs.unlinkAsync(config.CHANNELS_DB_FILE_PATH);
@@ -48,18 +49,23 @@ const importArchive = async () => {
             throw err;
         }
     }
+    const channelsJSON = require(channelsJSONPath);
     channelsDb.insert(channelsJSON);
-    const files = await fs.readdirAsync(config.DATA_PATH);
+    const files = await fs.readdirAsync(dataPath);
     for (let fileName of files) {
-        const filePath = path.join(config.DATA_PATH, fileName);
+        const filePath = path.join(dataPath, fileName);
         const stats = await fs.statAsync(filePath);
         if (stats.isDirectory()) {
             console.log('Reading channel:', fileName);
-            readChannelDirectory(fileName, filePath);
+            readChannelDirectory(fileName, filePath, users);
         }
     }
     console.log('Finished!');
     console.timeEnd('Import time');
 };
 
-importArchive();
+exports.importArchive = importArchive;
+
+if (process.argv[2] && process.argv[2] === 'filesystem') {
+    importArchive();
+}
