@@ -1,3 +1,5 @@
+const os = require('os');
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -6,14 +8,21 @@ const basicAuth = require('express-basic-auth');
 const Datastore = require('nedb');
 const Promise = require('bluebird');
 const next = require('next');
+const multer = require('multer');
+const unzipper = require('unzipper');
+const rimraf = require('rimraf');
 const databases = require('./database');
 const config = require('./config');
+const { importArchive } = require('./import');
 
+Promise.promisifyAll(fs);
 const dev = process.env.NODE_ENV !== 'production';
 const db = databases.messagesDb;
 const channelsDb = databases.channelsDb;
 const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
+const TMP_UPLOAD_DIR = path.join(os.tmpdir(), 'slack-archive');
+const upload = multer({ dest: TMP_UPLOAD_DIR });
 
 nextApp.prepare().then(() => {
     const app = express();
@@ -37,6 +46,25 @@ nextApp.prepare().then(() => {
     app.get('/service-worker.js', (req, res) => {
         const filePath = path.join(__dirname, '.next', '/service-worker.js');
         nextApp.serveStatic(req, res, filePath);
+    });
+
+    app.post('/api/upload', upload.single('archive'), async (req, res) => {
+        console.log(req.file);
+        const extractDir = path.join(TMP_UPLOAD_DIR, `${req.file.filename}_extracted_dir`);
+        try {
+            await fs.mkdirAsync(extractDir);
+            await fs
+                .createReadStream(req.file.path)
+                .pipe(unzipper.Extract({ path: extractDir }))
+                .promise();
+            await importArchive(extractDir);
+            rimraf(extractDir, () => {});
+            rimraf(req.file.path, () => {});
+            res.sendStatus(204);
+        } catch (err) {
+            console.error(err);
+            res.sendStatus(500);
+        }
     });
 
     const nedbOperator = [['$gt', '$gte'], ['$lt', '$lte']];
