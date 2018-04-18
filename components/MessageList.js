@@ -5,10 +5,12 @@ import { MessageLink } from './MessageLink';
 export class MessageList extends React.Component {
     scrollHandler = async () => {
         window.requestAnimationFrame(() => {
-            const d = document.documentElement;
+            const d = document.scrollingElement;
             const offset = d.scrollTop + window.innerHeight;
             const height = d.offsetHeight;
 
+            console.log(offset);
+            console.log(height);
             if (offset >= height - 100) {
                 this.props.loadMoreMessagesBottom && this.props.loadMoreMessagesBottom();
             }
