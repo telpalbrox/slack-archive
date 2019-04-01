@@ -4,7 +4,7 @@ import Router from 'next/router';
 import NProgress from 'nprogress';
 import { Sidebar } from './Sidebar';
 import { Search } from './Search';
-import { LinkCSS } from './LinkCSS';
+import '../styles/styles.scss';
 
 Router.onRouteChangeStart = () => NProgress.start();
 Router.onRouteChangeComplete = () => NProgress.done();
